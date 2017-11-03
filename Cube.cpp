@@ -4,7 +4,7 @@
 Cube::Cube()
 {
 	toWorld = glm::mat4(1.0f);
-	toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(20,20,20));
+	toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(200,200,200));
 	// Create array object and buffers. Remember to delete your buffers when the object is destroyed!
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);

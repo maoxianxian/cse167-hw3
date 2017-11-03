@@ -17,6 +17,6 @@ uniform mat4 modelview;
 void main()
 {
     // OpenGL maintains the D matrix so you only need to multiply by P, V (aka C inverse), and M
-	fragTexCoord = position;
+	fragTexCoord = vec3(position.x,position.y,position.z);
     gl_Position = projection * modelview * vec4(position.x, position.y, position.z, 1.0);
 }
