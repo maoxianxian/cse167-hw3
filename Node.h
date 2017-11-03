@@ -10,5 +10,6 @@
 class Node {
 public:
 	virtual void draw(GLuint shaderProgram,glm::mat4 m) = 0;
+	virtual void update() = 0;
 }; 
 #endif

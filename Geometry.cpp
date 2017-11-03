@@ -38,7 +38,6 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 m)
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
-
 }
 void Geometry::parse(const char* filepath)
 {
