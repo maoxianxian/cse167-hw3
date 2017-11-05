@@ -39,6 +39,10 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 m)
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
+void Geometry::update()
+{
+
+}
 void Geometry::parse(const char* filepath)
 {
 	FILE* fp;     // file pointer

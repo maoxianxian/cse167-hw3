@@ -1,15 +1,17 @@
 #define _USE_MATH_DEFINES
 #include "window.h"
 #include <math.h>
-#include "OBJObject.h"
-
+#include "Geometry.h"
+#include "Transform.h"
 const char* window_title = "GLFW Starter Project";
 GLint shaderProgram;
+GLint shader2;
 Cube *cbe;
 // On some systems you need to change this to the absolute path
 #define VERTEX_SHADER_PATH "../shader.vert"
 #define FRAGMENT_SHADER_PATH "../shader.frag"
-
+#define SHADER2_PATH "../shader2.vert"
+#define FRAG2_PATH "../shader2.frag"
 // Default camera parameters
 glm::vec3 cam_pos(0.0f, 0.0f, 20.0f);		// e  | Position of camera
 glm::vec3 cam_look_at(0.0f, 0.0f, 0.0f);	// d  | This is where the camera looks at
@@ -21,13 +23,49 @@ double prexpos, preypos, prerightx, prerighty;
 int i = 0;
 glm::mat4 Window::P;
 glm::mat4 Window::V;
-
+Geometry* antenna;
+Geometry* body;
+Geometry* eyeball;
+Geometry* head;
+Geometry* limb;
+Transform * root;
+std::vector<Transform*> robots;
+Transform * robotToroot;
 void Window::initialize_objects()
 {
 	
 	loadTexture();
 	//  the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
+	shader2 = LoadShaders(SHADER2_PATH, FRAG2_PATH);
+	antenna = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\antenna.obj");
+	body = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\body.obj");
+	eyeball = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\eyeball.obj");
+	head = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\head.obj");
+	limb = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\limb.obj");
+	robotToroot = new Transform(glm::mat4(1.0f));
+	Transform *antennaleftTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f),glm::vec3(0.3,0.3,0.1)));
+	antennaleftTorobot->rotate( glm::vec3(0,0,1),(float)M_PI*3.0f / 2 );
+	antennaleftTorobot->addChild(antenna);
+	antennaleftTorobot->translate(2, -1, 0);
+	robotToroot->addChild(antennaleftTorobot);
+	Transform *antennarightTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3,0.3,0.1)));
+	antennarightTorobot->rotate(glm::vec3(0, 0, 1), (float)M_PI*3.0f / 2);
+	antennarightTorobot->addChild(antenna);
+	antennarightTorobot->translate(4,-1,0);
+	robotToroot->addChild(antennarightTorobot);
+	Transform *headTorobot = new Transform(glm::mat4(1.0f));
+	headTorobot->scale(0.1, 0.1, 0.1);
+	headTorobot->rotate(glm::vec3(1, 0, 0), 3.0f*M_PI/2 );
+	headTorobot->translate(3.0f, -10.0f, 0);
+	headTorobot->addChild(head);
+	robotToroot->addChild(headTorobot);
+
+	//robot->addChild(body);
+	//robot->addChild(eyeball);
+	//robot->addChild(limb);
+	root = new Transform(glm::mat4(1.0f));
+	root->addChild(robotToroot);
 	cbe= new Cube();
 }
 
@@ -35,6 +73,13 @@ void Window::initialize_objects()
 void Window::clean_up()
 {
 	glDeleteProgram(shaderProgram);
+	delete(antenna);
+	delete(body);
+	delete(eyeball);
+	delete(head);
+	delete(limb);
+	delete robotToroot;
+	delete root;
 }
 
 unsigned char* Window::loadPPM(const char* filename, int& width, int& height)
@@ -109,10 +154,6 @@ GLuint Window::loadTexture()
 		tdata = loadPPM(faces[i].c_str(), twidth, theight); //std::cout << tdata << std::endl;
 		if (tdata == NULL) return 0;
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, twidth, theight, 0, GL_RGB, GL_UNSIGNED_BYTE, tdata);
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Deprecated in modern OpenGL - do not use!
-
-											   // Select GL_MODULATE to mix texture with polygon color for shading:
-		//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); // Deprecated in modern OpenGL - do not use!
 	}
 	return texture;
 }
@@ -205,6 +246,8 @@ void Window::display_callback(GLFWwindow* window)
 	// Use the shader of programID
 	glUseProgram(shaderProgram);
 	cbe->draw(shaderProgram);
+	glUseProgram(shader2);
+	root->draw(shader2,glm::mat4(1.0f));
 	// Render the cube	
 	int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 	if (state == GLFW_PRESS)
@@ -222,7 +265,9 @@ void Window::display_callback(GLFWwindow* window)
 				cos = 1;
 			}
 			float deg = acos(cos);
-			V=glm::rotate(glm::mat4(1.0f), deg, res)*V;
+			cam_pos = glm::rotate(glm::mat4(1.0f), deg, res)*glm::vec4(cam_pos,1.0);
+			V = glm::lookAt(cam_pos, cam_look_at, cam_up);
+
 		}
 		prexpos = xpos;
 		preypos = ypos;

@@ -3,6 +3,8 @@ Transform::Transform(glm::mat4 m)
 {
 	toParent = m;
 }
+Transform::~Transform()
+{}
 void Transform::draw(GLuint shaderProgram, glm::mat4 m)
 {
 	for (int i = 0; i < children.size(); i++)
@@ -12,17 +14,17 @@ void Transform::draw(GLuint shaderProgram, glm::mat4 m)
 }
 void Transform::translate(float x, float y, float z)
 {
-	this->toParent = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
+	this->toParent = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z))*this->toParent;
 }
 
 void Transform::rotate(glm::vec3 axis, float deg)
 {
-	this->toParent = glm::rotate(glm::mat4(1.0f), deg, axis)*this->toParent;
+	this->toParent = this->toParent*glm::rotate(glm::mat4(1.0f), deg, axis);
 }
 
 void Transform::scale(float x, float y, float z)
 {
-	this->toParent = glm::scale(glm::mat4(1.0f), glm::vec3(x, y, z));
+	this->toParent = this->toParent*glm::scale(glm::mat4(1.0f), glm::vec3(x, y, z));
 }
 void Transform::addChild(Node* child)
 {
@@ -38,4 +40,8 @@ void Transform::removeChild(Node * child)
 			return;
 		}
 	}
+}
+void Transform::update()
+{
+
 }

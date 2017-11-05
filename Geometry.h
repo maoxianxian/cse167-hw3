@@ -13,5 +13,6 @@ public:
 	~Geometry();
 	void parse(const char* filepath);
 	void draw(GLuint shaderProgram, glm::mat4 m);
+	void update();
 };
 #endif

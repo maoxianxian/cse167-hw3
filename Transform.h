@@ -1,4 +1,4 @@
-#ifndef TRANSDORM_H
+#ifndef TRANSFORM_H
 #define TRANSFORM_H
 #include "Node.h"
 #include <vector>
@@ -14,6 +14,6 @@ class Transform : public Node {
 		void rotate(glm::vec3 axis, float deg);
 		void addChild(Node* child);
 		void removeChild(Node* child);
-
+		void update();
 };
 #endif

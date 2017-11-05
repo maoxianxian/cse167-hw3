@@ -12,7 +12,6 @@
 #include <GLFW/glfw3.h>
 #include "Cube.h"
 #include "shader.h"
-#include "light.h"
 /*struct directionalLight {
 	glm::vec3 Color;
 	glm::vec3 Direction;
