@@ -30,9 +30,12 @@ Geometry::Geometry(const char* filepath)
 Geometry::~Geometry(){}
 void Geometry::draw(GLuint shaderProgram, glm::mat4 m)
 {
+	m = m*centermat;
 	glm::mat4 modelview = Window::V * m;
 	GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
 	GLuint uModelview = glGetUniformLocation(shaderProgram, "modelview");
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &m[0][0]);
+
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
 	glBindVertexArray(VAO);
@@ -42,6 +45,10 @@ void Geometry::draw(GLuint shaderProgram, glm::mat4 m)
 void Geometry::update()
 {
 
+}
+void Geometry::center()
+{
+	this->centermat = this->centermat*glm::translate(glm::mat4(1.0f), glm::vec3(-(xmin + xmax) / 2, -(ymin + ymax) / 2, -(zmin + zmax) / 2));
 }
 void Geometry::parse(const char* filepath)
 {
@@ -67,6 +74,26 @@ void Geometry::parse(const char* filepath)
 				int a = fscanf(fp, "%f %f %f", &x, &y, &z);
 				glm::vec3 temp = glm::vec3(x, y, z);
 				vertices.push_back(temp);
+				if (x > xmax)
+				{
+					xmax = x;
+				}
+				if (x < xmin)
+				{
+					xmin = x;
+				}if (y > ymax)
+				{
+					ymax = y;
+				}if (y < ymin)
+				{
+					ymin = y;
+				}if (z > zmax)
+				{
+					zmax = z;
+				}if (z < zmin)
+				{
+					zmin = z;
+				}
 			}
 			else
 			{
@@ -88,5 +115,6 @@ void Geometry::parse(const char* filepath)
 		char buffer[128];
 		fgets(buffer, 128, fp);
 	}
+	center();
 	fclose(fp);   // make sure you don't forget to close the file when done
 }

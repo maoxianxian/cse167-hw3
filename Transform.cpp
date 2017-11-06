@@ -43,5 +43,8 @@ void Transform::removeChild(Node * child)
 }
 void Transform::update()
 {
-
+	for (int i = 0; i < children.size(); i++)
+	{
+		children[i]->update();
+	}
 }

@@ -23,6 +23,8 @@ public:
 	Transform* leftlegTorobot;
 	Transform* rightlegTorobot;
 	std::vector<Node*> children;
+	bool state;
+	int count;
 	robot(glm::mat4 m,Geometry* antenna,Geometry* body,	Geometry* eyeball,	Geometry* head,	Geometry* limb);
 	~robot();
 	void draw(GLuint shaderProgram, glm::mat4 m);

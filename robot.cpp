@@ -1,6 +1,8 @@
 #include "robot.h"
 robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geometry* head,Geometry* limb)
 {
+	state = true;
+	count = 0;
 	toParent = m;
 	this->antenna = antenna;
 	this->body = body;
@@ -8,12 +10,14 @@ robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geom
 	this->head = head;
 	this->limb = limb;
 	antennaleftTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.3, 0.1)));
-	antennaleftTorobot->rotate(glm::vec3(0, 0, 1), (float)M_PI*3.0f / 2);
+	antennaleftTorobot->rotate(glm::vec3(0, 1, 0), -(float)M_PI /3);
+
+	antennaleftTorobot->rotate(glm::vec3(0, 0, 1), (float)M_PI / 2);
 	antennaleftTorobot->addChild(antenna);
-	antennaleftTorobot->translate(2, -1, 0);
+	//antennaleftTorobot->translate(2, -1, 0);
 	children.push_back(antennaleftTorobot);
 
-	antennarightTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.3, 0.1)));
+	/*antennarightTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.3, 0.1)));
 	antennarightTorobot->rotate(glm::vec3(0, 0, 1), (float)M_PI*3.0f / 2);
 	antennarightTorobot->addChild(antenna);
 	antennarightTorobot->translate(4, -1, 0);
@@ -57,14 +61,15 @@ robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geom
 	leftlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 2);
 	leftlegTorobot->translate(4.5, -3, 0.5);
 	leftlegTorobot->addChild(limb);
-	children.push_back(leftarmTorobot);
+	children.push_back(leftlegTorobot);
 
 	rightlegTorobot = new Transform(glm::mat4(1.0f));
 	rightlegTorobot->scale(0.1, 0.1, 0.07);
 	rightlegTorobot->translate(6.5, -6.2, -2.5);
 	rightlegTorobot->addChild(limb);
-	children.push_back(rightlegTorobot);
+	children.push_back(rightlegTorobot);*/
 }
+
 robot::~robot()
 {
 	delete headTorobot;
@@ -75,6 +80,7 @@ robot::~robot()
 	delete leftlegTorobot;
 	delete rightlegTorobot;
 }
+
 void robot::draw(GLuint shaderProgram, glm::mat4 m)
 {
 	for (int i = 0; i < children.size(); i++)
@@ -82,7 +88,21 @@ void robot::draw(GLuint shaderProgram, glm::mat4 m)
 		children[i]->draw(shaderProgram, m);
 	}
 }
-void update()
-{
 
+void robot::update()
+{
+	if (state)
+	{
+		//leftarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
+	}
+	else
+	{
+		//leftarmTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 180.0f);
+	}
+	count++;
+	if (count == 90)
+	{
+		state = !state;
+		count = 0;
+	}
 }
