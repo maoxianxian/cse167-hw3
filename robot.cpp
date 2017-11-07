@@ -155,9 +155,16 @@ void robot::parse(const char* filepath)
 }
 void robot::draw(GLuint shaderProgram, glm::mat4 m)
 {
+	glUseProgram(shaderProgram);
+	for (int i = 0; i < children.size(); i++)
+	{
+		children[i]->draw(shaderProgram, m*toParent);
+	}
+	glUseProgram(0);
+	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
-	//glMultMatrixf(&((m*toParent*glm::scale(glm::mat4(1.0f), glm::vec3(100, 100, 100)))[0][0]));
+	glMultMatrixf(&(m*toParent)[0][0]);
 	//glMultMatrixf(&(glm::mat4(1.0f)[0][0]));
 	glBegin(GL_POINTS);
 	std::cout << normals.size() <<" "<< vertices.size()<<std::endl;
@@ -173,11 +180,6 @@ void robot::draw(GLuint shaderProgram, glm::mat4 m)
 	}
 	glEnd();
 	glPopMatrix();
-
-	for (int i = 0; i < children.size(); i++)
-	{
-		children[i]->draw(shaderProgram, m*toParent);
-	}
 }
 
 void robot::update()
