@@ -25,6 +25,16 @@ public:
 	std::vector<Node*> children;
 	bool state;
 	int count;
+	std::vector<unsigned int> indices;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	void parse(const char* filepath);
+	float xmax;
+	float xmin;
+	float ymax;
+	float ymin;
+	float zmax;
+	float zmin;
 	robot(glm::mat4 m,Geometry* antenna,Geometry* body,	Geometry* eyeball,	Geometry* head,	Geometry* limb);
 	~robot();
 	void draw(GLuint shaderProgram, glm::mat4 m);

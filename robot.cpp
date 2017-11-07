@@ -1,6 +1,8 @@
 #include "robot.h"
+#include <iostream>
 robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geometry* head,Geometry* limb)
 {
+	parse("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\sphere.obj");
 	state = true;
 	count = 0;
 	toParent = m*glm::scale(glm::mat4(1.0f),glm::vec3(0.5,0.5,0.5));
@@ -59,12 +61,14 @@ robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geom
 	
 	leftlegTorobot = new Transform(glm::mat4(1.0f));
 	leftlegTorobot->scale(0.1, 0.07, 0.1);
+	leftlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 5.0f);
 	leftlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 2);
 	leftlegTorobot->translate(1.5, -6, 0.5);
 	leftlegTorobot->addChild(limb);
 	children.push_back(leftlegTorobot);
 	
 	rightlegTorobot = new Transform(glm::mat4(1.0f));
+	rightlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 5.0f);
 	rightlegTorobot->scale(0.1, 0.07, 0.1);
 	rightlegTorobot->translate(3.5, -6, 0.5);
 	rightlegTorobot->addChild(limb);
@@ -81,9 +85,95 @@ robot::~robot()
 	delete leftlegTorobot;
 	delete rightlegTorobot;
 }
+void robot::parse(const char* filepath)
+{
+	FILE* fp;     // file pointer
+	GLfloat x, y, z;  // vertex coordinates
+	unsigned int i1, i2, i3; // indices
+	std::string temps;
+	GLfloat r, g, b;  // vertex color
+	GLint c1, c2;    // characters read from file
+	fp = fopen(filepath, "rb");  // make the file name configurable so you can load other files
+	if (fp == NULL) { std::cerr << "error loading file" << std::endl; exit(-1); }  // just in case the file can't be found or is corrupt
+																				   //int i = 0;
+	while (!feof(fp))
+	{
+		c1 = fgetc(fp);
 
+		if (c1 != '#'&&c1 != 13 && c1 != 10)
+		{
+			c2 = fgetc(fp);
+
+			if ((c1 == 'v') && (c2 == ' '))
+			{
+				int a = fscanf(fp, "%f %f %f", &x, &y, &z);
+				glm::vec3 temp = glm::vec3(x, y, z);
+				vertices.push_back(temp);
+				if (x > xmax)
+				{
+					xmax = x;
+				}
+				if (x < xmin)
+				{
+					xmin = x;
+				}if (y > ymax)
+				{
+					ymax = y;
+				}if (y < ymin)
+				{
+					ymin = y;
+				}if (z > zmax)
+				{
+					zmax = z;
+				}if (z < zmin)
+				{
+					zmin = z;
+				}
+			}
+			else
+			{
+				if ((c1 == 'f') && (c2 == ' '))
+				{
+					fscanf(fp, "%d %s %d %s %d", &i1, &temps, &i2, &temps, &i3);
+					indices.push_back(i1 - 1);
+					indices.push_back(i2 - 1);
+					indices.push_back(i3 - 1);
+				}
+				else if ((c1 == 'v') && (c2 == 'n') && (fgetc(fp) == ' '))
+				{
+					fscanf(fp, "%f %f %f", &x, &y, &z);
+					glm::vec3 temp = glm::vec3(x, y, z);
+					normals.push_back(temp);
+				}
+			}
+		}
+		char buffer[128];
+		fgets(buffer, 128, fp);
+	}
+	//center();
+	fclose(fp);   // make sure you don't forget to close the file when done
+}
 void robot::draw(GLuint shaderProgram, glm::mat4 m)
 {
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	//glMultMatrixf(&((m*toParent*glm::scale(glm::mat4(1.0f), glm::vec3(100, 100, 100)))[0][0]));
+	//glMultMatrixf(&(glm::mat4(1.0f)[0][0]));
+	glBegin(GL_POINTS);
+	std::cout << normals.size() <<" "<< vertices.size()<<std::endl;
+	for (unsigned int i = 0; i < vertices.size(); ++i)
+	{
+		GLfloat length = normals[i].x*normals[i].x + normals[i].y*normals[i].y + normals[i].z*normals[i].z;
+		length = sqrt(length);
+		GLfloat x = (normals[i].x / length + 1) / 2;
+		GLfloat y = (normals[i].y / length + 1) / 2;
+		GLfloat z = (normals[i].z / length + 1) / 2;
+		glColor3f(x, y, z);
+		glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
+	}
+	glEnd();
+	glPopMatrix();
+
 	for (int i = 0; i < children.size(); i++)
 	{
 		children[i]->draw(shaderProgram, m*toParent);

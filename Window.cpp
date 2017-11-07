@@ -50,7 +50,7 @@ void Window::initialize_objects()
 		for (int j = 0; j < 10; j++)
 		{
 
-			robot* robo = new robot(glm::mat4(1.0f)*glm::translate(glm::mat4(1.0f),glm::vec3(-i*3,-1,-j*3)), antenna, body, eyeball, head, limb);
+			robot* robo = new robot(glm::mat4(1.0f)*glm::translate(glm::mat4(1.0f),glm::vec3(-i*5,-1,-j*5)), antenna, body, eyeball, head, limb);
 			rob.push_back(robo);
 			root->addChild(robo);
 		}
@@ -292,6 +292,28 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		{
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
+		}
+		else if (key == GLFW_KEY_R)
+		{
+			if (!mods)
+			{
+				root->rotate(glm::vec3(0, 1, 0), M_PI / 18);
+			}
+			else
+			{
+				root->rotate(glm::vec3(0, 1, 0), -M_PI / 18);
+			}
+		}
+		else if (key == GLFW_KEY_S)
+		{
+			if (!mods)
+			{
+				root->scale(0.9,0.9,0.9);
+			}
+			else
+			{
+				root->scale(1.1, 1.1, 1.1);
+			}
 		}
 	}
 	if (action == GLFW_REPEAT)
