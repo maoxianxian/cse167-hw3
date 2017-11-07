@@ -3,71 +3,72 @@ robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geom
 {
 	state = true;
 	count = 0;
-	toParent = m;
+	toParent = m*glm::scale(glm::mat4(1.0f),glm::vec3(0.5,0.5,0.5));
 	this->antenna = antenna;
 	this->body = body;
 	this->eyeball = eyeball;
 	this->head = head;
 	this->limb = limb;
-	antennaleftTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.3, 0.1)));
-	antennaleftTorobot->rotate(glm::vec3(0, 1, 0), -(float)M_PI /3);
-
+	antennaleftTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.08, 0.3)));
+	antennaleftTorobot->rotate(glm::vec3(1, 0, 0), -(float)M_PI / 1.6);
 	antennaleftTorobot->rotate(glm::vec3(0, 0, 1), (float)M_PI / 2);
 	antennaleftTorobot->addChild(antenna);
-	//antennaleftTorobot->translate(2, -1, 0);
 	children.push_back(antennaleftTorobot);
 
-	/*antennarightTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.3, 0.1)));
-	antennarightTorobot->rotate(glm::vec3(0, 0, 1), (float)M_PI*3.0f / 2);
-	antennarightTorobot->addChild(antenna);
-	antennarightTorobot->translate(4, -1, 0);
+	antennarightTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.08, 0.3)));
+	antennarightTorobot->rotate(glm::vec3(1, 0, 0), -(float)M_PI / 1.6);
+	antennarightTorobot->rotate(glm::vec3(0, 0, 1), (float)M_PI / 2);	antennarightTorobot->addChild(antenna);
+	antennarightTorobot->translate(3, 0, 0);
 	children.push_back(antennarightTorobot);
-
+	
 	headTorobot = new Transform(glm::mat4(1.0f));
 	headTorobot->scale(0.1, 0.1, 0.1);
 	headTorobot->rotate(glm::vec3(1, 0, 0), 3.0f*M_PI / 2);
-	headTorobot->translate(3.0f, -10.0f, 0);
+	headTorobot->translate(1.5f, -5.5f, 0);
 	headTorobot->addChild(head);
 	children.push_back(headTorobot);
-
+	
 	bodyTorobot = new Transform(glm::mat4(1.0f));
 	bodyTorobot->scale(0.1, 0.1, 0.1);
 	bodyTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 2);
-	bodyTorobot->translate(3, 1.3, 0);
+	bodyTorobot->translate(1.5f, -3, 0);
 	bodyTorobot->addChild(body);
 	children.push_back(bodyTorobot);
-
+	
 	eyeballTorobot = new Transform(glm::mat4(1.0f));
 	eyeballTorobot->scale(0.1, 0.1, 0.1);
-	eyeballTorobot->translate(3, 0, 2);
+	eyeballTorobot->translate(1.5, -1, 2);
 	eyeballTorobot->addChild(eyeball);
 	children.push_back(eyeballTorobot);
-
+	
 	leftarmTorobot = new Transform(glm::mat4(1.0f));
 	leftarmTorobot->scale(0.1, 0.09, 0.1);
-	leftarmTorobot->translate(3.5, -3, -4);
+	leftarmTorobot->rotate(glm::vec3(0, 1, 0), -M_PI / 18);
+	leftarmTorobot->translate(0, -3, 0);
 	leftarmTorobot->addChild(limb);
 	children.push_back(leftarmTorobot);
-
+	
 	rightarmTorobot = new Transform(glm::mat4(1.0f));
 	rightarmTorobot->scale(0.1, 0.09, 0.1);
+	rightarmTorobot->rotate(glm::vec3(0, 0, 1), M_PI / 18);
 	rightarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 2);
-	rightarmTorobot->translate(8, 0.5, 0.5);
+	rightarmTorobot->translate(5.1, -3, 0);
 	rightarmTorobot->addChild(limb);
 	children.push_back(rightarmTorobot);
 
+	
 	leftlegTorobot = new Transform(glm::mat4(1.0f));
 	leftlegTorobot->scale(0.1, 0.07, 0.1);
 	leftlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 2);
-	leftlegTorobot->translate(4.5, -3, 0.5);
+	leftlegTorobot->translate(1.5, -6, 0.5);
 	leftlegTorobot->addChild(limb);
 	children.push_back(leftlegTorobot);
-
+	
 	rightlegTorobot = new Transform(glm::mat4(1.0f));
-	rightlegTorobot->scale(0.1, 0.1, 0.07);
-	rightlegTorobot->translate(6.5, -6.2, -2.5);
+	rightlegTorobot->scale(0.1, 0.07, 0.1);
+	rightlegTorobot->translate(3.5, -6, 0.5);
 	rightlegTorobot->addChild(limb);
-	children.push_back(rightlegTorobot);*/
+	children.push_back(rightlegTorobot);
 }
 
 robot::~robot()
@@ -85,7 +86,7 @@ void robot::draw(GLuint shaderProgram, glm::mat4 m)
 {
 	for (int i = 0; i < children.size(); i++)
 	{
-		children[i]->draw(shaderProgram, m);
+		children[i]->draw(shaderProgram, m*toParent);
 	}
 }
 
@@ -93,12 +94,20 @@ void robot::update()
 {
 	if (state)
 	{
-		//leftarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
+		leftarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
+		rightarmTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 180.0f);
+		leftlegTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 180.0f);
+		rightlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
+
 	}
 	else
 	{
-		//leftarmTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 180.0f);
+		leftarmTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 180.0f);
+		rightarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
+		leftlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
+		rightlegTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 180.0f);
 	}
+	this->toParent = this->toParent*glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0.03f));
 	count++;
 	if (count == 90)
 	{

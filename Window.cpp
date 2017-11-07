@@ -4,6 +4,7 @@
 #include "Geometry.h"
 #include "Transform.h"
 #include "robot.h"
+#include <vector>
 const char* window_title = "GLFW Starter Project";
 GLint shaderProgram;
 GLint shader2;
@@ -30,7 +31,7 @@ Geometry* eyeball;
 Geometry* head;
 Geometry* limb;
 Transform * root;
-robot * rob;
+std::vector<robot*> rob;
 void Window::initialize_objects()
 {
 	
@@ -43,15 +44,27 @@ void Window::initialize_objects()
 	eyeball = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\eyeball.obj");
 	head = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\head.obj");
 	limb = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\limb.obj");
-	rob = new robot(glm::mat4(1.0f), antenna, body, eyeball, head, limb);
 	root = new Transform(glm::mat4(1.0f));
-	root->addChild(rob);
+	for (int i = 0; i < 10; i++)
+	{
+		for (int j = 0; j < 10; j++)
+		{
+
+			robot* robo = new robot(glm::mat4(1.0f)*glm::translate(glm::mat4(1.0f),glm::vec3(-i*3,-1,-j*3)), antenna, body, eyeball, head, limb);
+			rob.push_back(robo);
+			root->addChild(robo);
+		}
+	}
 	cbe= new Cube();
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
 void Window::clean_up()
 {
+	for (int i = 0; i > rob.size(); i++)
+	{
+		delete rob[i];
+	}
 	glDeleteProgram(shaderProgram);
 	delete(antenna);
 	delete(body);
@@ -59,6 +72,7 @@ void Window::clean_up()
 	delete(head);
 	delete(limb);
 	delete root;
+	
 }
 
 unsigned char* Window::loadPPM(const char* filename, int& width, int& height)
