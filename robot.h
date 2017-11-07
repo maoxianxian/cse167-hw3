@@ -25,6 +25,7 @@ public:
 	std::vector<Node*> children;
 	bool state;
 	int count;
+	bool ball = false;
 	std::vector<unsigned int> indices;
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
@@ -35,6 +36,7 @@ public:
 	float ymin;
 	float zmax;
 	float zmin;
+	GLuint VBO, VAO, EBO, NBO;
 	robot(glm::mat4 m,Geometry* antenna,Geometry* body,	Geometry* eyeball,	Geometry* head,	Geometry* limb);
 	~robot();
 	void draw(GLuint shaderProgram, glm::mat4 m);

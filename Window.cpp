@@ -49,7 +49,6 @@ void Window::initialize_objects()
 	{
 		for (int j = 0; j < 10; j++)
 		{
-
 			robot* robo = new robot(glm::mat4(1.0f)*glm::translate(glm::mat4(1.0f),glm::vec3(-i*5,-1,-j*5)), antenna, body, eyeball, head, limb);
 			rob.push_back(robo);
 			root->addChild(robo);
@@ -210,7 +209,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 	if (height > 0)
 	{
-		P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
+		P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 10000.0f);
 		V = glm::lookAt(cam_pos, cam_look_at, cam_up);
 	}
 }
@@ -313,6 +312,13 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			else
 			{
 				root->scale(1.1, 1.1, 1.1);
+			}
+		}
+		else if (key == GLFW_KEY_B)
+		{
+			for (int i = 0; i < rob.size(); i++)
+			{
+				rob[i]->ball = !rob[i]->ball;
 			}
 		}
 	}

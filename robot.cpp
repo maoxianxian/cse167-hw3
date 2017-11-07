@@ -1,8 +1,31 @@
 #include "robot.h"
 #include <iostream>
+#include "Window.h"
 robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geometry* head,Geometry* limb)
 {
 	parse("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\sphere.obj");
+	//std::cout << vertices.size() << std::endl;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &NBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*vertices.size(), &vertices[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0,// This first parameter x should be the same as the number passed into the line "layout (location = x)" in the vertex shader. In this case, it's 0. Valid values are 0 to GL_MAX_UNIFORM_LOCATIONS.
+		3, // This second line tells us how any components there are per vertex. In this case, it's 3 (we have an x, y, and z component)
+		GL_FLOAT, // What type these components are
+		GL_FALSE, // GL_TRUE means the values should be normalized. GL_FALSE means they shouldn't
+		3 * sizeof(GLfloat), // Offset between consecutive indices. Since each of our vertices have 3 floats, they should have the size of 3 floats in between
+		(GLvoid*)0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, NBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*normals.size(), normals.data(), GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 	state = true;
 	count = 0;
 	toParent = m*glm::scale(glm::mat4(1.0f),glm::vec3(0.5,0.5,0.5));
@@ -155,31 +178,25 @@ void robot::parse(const char* filepath)
 }
 void robot::draw(GLuint shaderProgram, glm::mat4 m)
 {
-	glUseProgram(shaderProgram);
+	if (ball)
+	{
+		glm::mat4 modelview = Window::V * m*toParent*glm::scale(glm::mat4(1.0f), glm::vec3(6, 6, 6))*glm::translate(glm::mat4(1.0f), glm::vec3(0.25, -0.7, 0));
+		GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
+		GLuint uModelview = glGetUniformLocation(shaderProgram, "modelview");
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &(m*toParent)[0][0]);
+
+		glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
+		glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
+		glBindVertexArray(VAO);
+
+		glDrawArrays(GL_LINES, 0, vertices.size());
+
+		glBindVertexArray(0);
+	}
 	for (int i = 0; i < children.size(); i++)
 	{
 		children[i]->draw(shaderProgram, m*toParent);
 	}
-	glUseProgram(0);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glMultMatrixf(&(m*toParent)[0][0]);
-	//glMultMatrixf(&(glm::mat4(1.0f)[0][0]));
-	glBegin(GL_POINTS);
-	std::cout << normals.size() <<" "<< vertices.size()<<std::endl;
-	for (unsigned int i = 0; i < vertices.size(); ++i)
-	{
-		GLfloat length = normals[i].x*normals[i].x + normals[i].y*normals[i].y + normals[i].z*normals[i].z;
-		length = sqrt(length);
-		GLfloat x = (normals[i].x / length + 1) / 2;
-		GLfloat y = (normals[i].y / length + 1) / 2;
-		GLfloat z = (normals[i].z / length + 1) / 2;
-		glColor3f(x, y, z);
-		glVertex3f(vertices[i].x, vertices[i].y, vertices[i].z);
-	}
-	glEnd();
-	glPopMatrix();
 }
 
 void robot::update()
