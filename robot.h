@@ -22,6 +22,8 @@ public:
 	Transform* rightarmTorobot;
 	Transform* leftlegTorobot;
 	Transform* rightlegTorobot;
+	float radius = 6;
+	glm::vec3 center = glm::vec3(0.25, -0.7, 0);
 	std::vector<Node*> children;
 	bool state;
 	int count;

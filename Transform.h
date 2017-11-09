@@ -12,6 +12,7 @@ class Transform : public Node {
 		void translate(float x, float y, float z);
 		void scale(float x, float y, float z);
 		void rotate(glm::vec3 axis, float deg);
+		void rotateafter(glm::vec3 axis, float deg);
 		void addChild(Node* child);
 		void removeChild(Node* child);
 		void update();

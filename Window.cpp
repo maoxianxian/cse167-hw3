@@ -22,7 +22,6 @@ glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 int Window::width;
 int Window::height;
 double prexpos, preypos, prerightx, prerighty;
-int i = 0;
 glm::mat4 Window::P;
 glm::mat4 Window::V;
 Geometry* antenna;
@@ -31,7 +30,21 @@ Geometry* eyeball;
 Geometry* head;
 Geometry* limb;
 Transform * root;
+Transform* temp;
+Transform *antennaleftTorobot;
+Transform *antennarightTorobot;
+Transform *headTorobot;
+Transform* bodyTorobot;
+Transform* eyeballTorobot;
+Transform* leftarmTorobot;
+Transform* rightarmTorobot;
+Transform* leftlegTorobot;
+Transform* rightlegTorobot;
+int index = 1;
+bool building = true;
 std::vector<robot*> rob;
+std::vector<Transform*> children;
+robot* robo;
 void Window::initialize_objects()
 {
 	
@@ -44,6 +57,50 @@ void Window::initialize_objects()
 	eyeball = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\eyeball.obj");
 	head = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\head.obj");
 	limb = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\limb.obj");
+
+
+	/*
+	antennaleftTorobot = new Transform(glm::mat4(1.0f));
+	antennaleftTorobot->addChild(antenna);
+	children.push_back(antennaleftTorobot);
+
+	antennarightTorobot = new Transform(glm::mat4(1.0f));
+	antennarightTorobot->addChild(antenna);
+	children.push_back(antennarightTorobot);
+
+	headTorobot = new Transform(glm::mat4(1.0f));
+	headTorobot->addChild(head);
+	headTorobot->translate(0, 0, -50);
+	children.push_back(headTorobot);
+
+	bodyTorobot = new Transform(glm::mat4(1.0f));
+	bodyTorobot->translate(0, 0, -100);
+	bodyTorobot->addChild(body);
+	children.push_back(bodyTorobot);
+
+
+	eyeballTorobot = new Transform(glm::mat4(1.0f));
+	eyeballTorobot->addChild(eyeball);
+	children.push_back(eyeballTorobot);
+
+	leftarmTorobot = new Transform(glm::mat4(1.0f));
+	leftarmTorobot->addChild(limb);
+	children.push_back(leftarmTorobot);
+
+	rightarmTorobot = new Transform(glm::mat4(1.0f));
+	rightarmTorobot->addChild(limb);
+	children.push_back(rightarmTorobot);
+
+	leftlegTorobot = new Transform(glm::mat4(1.0f));
+	leftlegTorobot->addChild(limb);
+	children.push_back(leftlegTorobot);
+
+	rightlegTorobot = new Transform(glm::mat4(1.0f));
+	rightlegTorobot->addChild(limb);
+	children.push_back(rightlegTorobot);
+	root = new Transform(glm::mat4(1.0f));
+	root->addChild(antennaleftTorobot);
+	temp = antennaleftTorobot;*/
 	root = new Transform(glm::mat4(1.0f));
 	for (int i = 0; i < 10; i++)
 	{
@@ -52,6 +109,7 @@ void Window::initialize_objects()
 			robot* robo = new robot(glm::mat4(1.0f)*glm::translate(glm::mat4(1.0f),glm::vec3(-i*5,-1,-j*5)), antenna, body, eyeball, head, limb);
 			rob.push_back(robo);
 			root->addChild(robo);
+			building = false;
 		}
 	}
 	cbe= new Cube();
@@ -258,8 +316,14 @@ void Window::display_callback(GLFWwindow* window)
 				cos = 1;
 			}
 			float deg = acos(cos);
-			cam_pos = glm::rotate(glm::mat4(1.0f), deg, res)*glm::vec4(cam_pos,1.0);
-			V = glm::lookAt(cam_pos, cam_look_at, cam_up);
+			if (!building) {
+				cam_pos = glm::rotate(glm::mat4(1.0f), deg, res)*glm::vec4(cam_pos, 1.0);
+				V = glm::lookAt(cam_pos, cam_look_at, cam_up);
+			}
+			else
+			{
+				temp->rotateafter(res, deg);
+			}
 
 		}
 		prexpos = xpos;
@@ -321,9 +385,251 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 				rob[i]->ball = !rob[i]->ball;
 			}
 		}
+		else if (key == GLFW_KEY_W)
+		{
+			if (building)
+			{
+				if (mods)
+				{
+					temp->translate(0, 0, -1);
+				}
+				else
+				{
+					temp->translate(0, 0, 1);
+				}
+			}
+		}
+		else if (key == GLFW_KEY_E)
+		{
+			if (building)
+			{
+				if (mods)
+				{
+					temp->translate(0, 1, 0);
+				}
+				else
+				{
+					temp->translate(0, -1, 1);
+				}
+			}
+		}
+		else if (key == GLFW_KEY_Q)
+		{
+			if (building)
+			{
+				if (mods)
+				{
+					temp->translate(1, 0, 0);
+				}
+				else
+				{
+					temp->translate(-1, 0, 0);
+				}
+			}
+		}
+		else if (key == GLFW_KEY_A)
+		{
+			if (building)
+			{
+				if (mods)
+				{
+					temp->scale(1.1,1.1,1.1);
+				}
+				else
+				{
+					temp->scale(0.9,0.9,0.9);
+				}
+			}
+		}
+		else if (key == GLFW_KEY_Z)
+		{
+			if (building)
+			{
+				if (mods)
+				{
+					temp->scale(1.1, 1, 1);
+				}
+				else
+				{
+					temp->scale(0.9, 1, 1);
+				}
+			}
+		}
+		else if (key == GLFW_KEY_X)
+		{
+			if (building)
+			{
+				if (mods)
+				{
+					temp->scale(1, 1.1, 1);
+				}
+				else
+				{
+					temp->scale(1, 0.9, 1);
+				}
+			}
+		}
+		else if (key == GLFW_KEY_C)
+		{
+			if (building)
+			{
+				if (mods)
+				{
+					temp->scale(1, 1, 1.1);
+				}
+				else
+				{
+					temp->scale(1, 1, 0.9);
+				}
+			}
+		}
+		else if (key == GLFW_KEY_ENTER)
+		{
+			if (building)
+			{
+				if (index < 9) {
+					temp = children[index];
+					index++;
+					root->addChild(temp);
+				}
+				else
+				{
+					building = false;
+					
+					for (int i = 0; i < children.size(); i++)
+					{
+						root->removeChild(children[i]);
+					}
+					for (int i = 0; i < 10; i++)
+					{
+						for (int j = 0; j < 10; j++)
+						{
+							robo = new robot(glm::mat4(1.0f)*glm::translate(glm::mat4(1.0f), glm::vec3(-i * 5, -1, -j * 5)), antenna, body, eyeball, head, limb);
+							robo->antennaleftTorobot = antennaleftTorobot;
+							robo->antennarightTorobot = antennaleftTorobot;
+							robo->headTorobot = headTorobot;
+							robo->eyeballTorobot = eyeballTorobot;
+							robo->bodyTorobot = bodyTorobot;
+							robo->leftarmTorobot = leftarmTorobot;
+							robo->leftlegTorobot = leftlegTorobot;
+							robo->rightarmTorobot = rightarmTorobot;
+							robo->rightlegTorobot = rightlegTorobot;
+							robo->children.push_back(antennaleftTorobot);
+							robo->children.push_back(antennarightTorobot);
+							robo->children.push_back(headTorobot);
+							robo->children.push_back(eyeballTorobot);
+							robo->children.push_back(bodyTorobot);
+							robo->children.push_back(leftarmTorobot);
+							robo->children.push_back(rightarmTorobot);
+							robo->children.push_back(leftlegTorobot);
+							robo->children.push_back(rightlegTorobot);
+							root->addChild(robo);
+						}
+					}
+
+				}
+			}
+		}
 	}
 	if (action == GLFW_REPEAT)
 	{
-		
+ if (key == GLFW_KEY_W)
+	{
+		if (building)
+		{
+			if (mods)
+			{
+				temp->translate(0, 0, -1);
+			}
+			else
+			{
+				temp->translate(0, 0, 1);
+			}
+		}
+	}
+	else if (key == GLFW_KEY_E)
+	{
+		if (building)
+		{
+			if (mods)
+			{
+				temp->translate(0, 1, 0);
+			}
+			else
+			{
+				temp->translate(0, -1, 1);
+			}
+		}
+	}
+	else if (key == GLFW_KEY_Q)
+	{
+		if (building)
+		{
+			if (mods)
+			{
+				temp->translate(1, 0, 0);
+			}
+			else
+			{
+				temp->translate(-1, 0, 0);
+			}
+		}
+	}
+	else if (key == GLFW_KEY_A)
+	{
+		if (building)
+		{
+			if (mods)
+			{
+				temp->scale(1.1, 1.1, 1.1);
+			}
+			else
+			{
+				temp->scale(0.9, 0.9, 0.9);
+			}
+		}
+	}
+	else if (key == GLFW_KEY_Z)
+	{
+		if (building)
+		{
+			if (mods)
+			{
+				temp->scale(1.1, 1, 1);
+			}
+			else
+			{
+				temp->scale(0.9, 1, 1);
+			}
+		}
+	}
+	else if (key == GLFW_KEY_X)
+	{
+		if (building)
+		{
+			if (mods)
+			{
+				temp->scale(1, 1.1, 1);
+			}
+			else
+			{
+				temp->scale(1, 0.9, 1);
+			}
+		}
+	}
+	else if (key == GLFW_KEY_C)
+	{
+		if (building)
+		{
+			if (mods)
+			{
+				temp->scale(1, 1, 1.1);
+			}
+			else
+			{
+				temp->scale(1, 1, 0.9);
+			}
+		}
+	}
 	}
 }

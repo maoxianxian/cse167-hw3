@@ -180,7 +180,7 @@ void robot::draw(GLuint shaderProgram, glm::mat4 m)
 {
 	if (ball)
 	{
-		glm::mat4 modelview = Window::V * m*toParent*glm::scale(glm::mat4(1.0f), glm::vec3(6, 6, 6))*glm::translate(glm::mat4(1.0f), glm::vec3(0.25, -0.7, 0));
+		glm::mat4 modelview = Window::V * m*toParent*glm::scale(glm::mat4(1.0f), glm::vec3(radius, radius, radius))*glm::translate(glm::mat4(1.0f), center);
 		GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
 		GLuint uModelview = glGetUniformLocation(shaderProgram, "modelview");
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &(m*toParent)[0][0]);

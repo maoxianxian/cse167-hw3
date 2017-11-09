@@ -21,6 +21,10 @@ void Transform::rotate(glm::vec3 axis, float deg)
 {
 	this->toParent = this->toParent*glm::rotate(glm::mat4(1.0f), deg, axis);
 }
+void Transform::rotateafter(glm::vec3 axis, float deg)
+{
+	this->toParent = glm::rotate(glm::mat4(1.0f), deg, axis)*this->toParent;
+}
 
 void Transform::scale(float x, float y, float z)
 {
