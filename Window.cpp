@@ -267,7 +267,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 	if (height > 0)
 	{
-		P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 10000.0f);
+		P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
 		V = glm::lookAt(cam_pos, cam_look_at, cam_up);
 	}
 }
@@ -293,6 +293,12 @@ void Window::display_callback(GLFWwindow* window)
 {
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glm::vec3 d = glm::normalize(-cam_pos);
+	glm::vec3 near = cam_pos + d*0.1f;
+	glm::vec3 far = cam_pos + d*1000.0f;
+	glm::vec3 rightfar = normalize(glm::cross(d, cam_up));
+	glm::vec3 ftl = cam_pos + far + tan(22.5f / 180.0f)*1000*cam_up - tan(22.5f/180.0f)*1000*rightfar;
+	glm::vec3 ftr = 
 
 	// Use the shader of programID
 	glUseProgram(shaderProgram);
@@ -318,6 +324,7 @@ void Window::display_callback(GLFWwindow* window)
 			float deg = acos(cos);
 			if (!building) {
 				cam_pos = glm::rotate(glm::mat4(1.0f), deg, res)*glm::vec4(cam_pos, 1.0);
+				cam_up = glm::rotate(glm::mat4(1.0f), deg, res)*glm::vec4(cam_up, 1.0);
 				V = glm::lookAt(cam_pos, cam_look_at, cam_up);
 			}
 			else
@@ -523,10 +530,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 							robo->children.push_back(rightarmTorobot);
 							robo->children.push_back(leftlegTorobot);
 							robo->children.push_back(rightlegTorobot);
+							rob.push_back(robo);
 							root->addChild(robo);
 						}
 					}
-
 				}
 			}
 		}

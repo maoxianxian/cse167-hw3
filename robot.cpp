@@ -201,6 +201,21 @@ void robot::draw(GLuint shaderProgram, glm::mat4 m)
 
 void robot::update()
 {
+	/*if (state)
+	{
+		leftarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 18000.0f);
+		rightarmTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 18000.0f);
+		leftlegTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 18000.0f);
+		rightlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 18000.0f);
+
+	}
+	else
+	{
+		leftarmTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 18000.0f);
+		rightarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 18000.0f);
+		leftlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 18000.0f);
+		rightlegTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 18000.0f);
+	}*/
 	if (state)
 	{
 		leftarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
