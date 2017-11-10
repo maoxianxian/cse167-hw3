@@ -34,7 +34,7 @@ robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geom
 	this->eyeball = eyeball;
 	this->head = head;
 	this->limb = limb;
-	antennaleftTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.08, 0.3)));
+	/*antennaleftTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.08, 0.3)));
 	antennaleftTorobot->rotate(glm::vec3(1, 0, 0), -(float)M_PI / 1.6);
 	antennaleftTorobot->rotate(glm::vec3(0, 0, 1), (float)M_PI / 2);
 	antennaleftTorobot->addChild(antenna);
@@ -95,7 +95,7 @@ robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geom
 	rightlegTorobot->scale(0.1, 0.07, 0.1);
 	rightlegTorobot->translate(3.5, -6, 0.5);
 	rightlegTorobot->addChild(limb);
-	children.push_back(rightlegTorobot);
+	children.push_back(rightlegTorobot);*/
 }
 
 robot::~robot()
@@ -173,49 +173,80 @@ void robot::parse(const char* filepath)
 		char buffer[128];
 		fgets(buffer, 128, fp);
 	}
-	//center();
+	//center(); 
 	fclose(fp);   // make sure you don't forget to close the file when done
 }
 void robot::draw(GLuint shaderProgram, glm::mat4 m)
 {
-	if (ball)
-	{
-		glm::mat4 modelview = Window::V * m*toParent*glm::scale(glm::mat4(1.0f), glm::vec3(radius, radius, radius))*glm::translate(glm::mat4(1.0f), center);
-		GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
-		GLuint uModelview = glGetUniformLocation(shaderProgram, "modelview");
-		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &(m*toParent)[0][0]);
+	glm::mat4 modelview = Window::V * m*toParent*glm::scale(glm::mat4(1.0f), glm::vec3(radius, radius, radius))*glm::translate(glm::mat4(1.0f), center);
+	glm::vec4 point = Window::P*modelview*glm::vec4(0, 0, 0, 1);
+	glm::vec3 t = point / point.w;
+	glm::vec4 radvect1 = Window::P*modelview*glm::vec4(1, 0, 0, 1);
+	float rad = glm::length(glm::vec3(radvect1 / radvect1.w) - glm::vec3(point / point.w));
 
-		glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
-		glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
-		glBindVertexArray(VAO);
+	float rightdis = glm::dot(t - glm::vec3(1, 1, 1), glm::vec3(-1, 0, 0));
+	bool righttest = rightdis > -rad;
 
-		glDrawArrays(GL_LINES, 0, vertices.size());
+	float leftdis = glm::dot(t - glm::vec3(-1, -1, -1), glm::vec3(1, 0, 0));
+	bool lefttest = leftdis>-rad;
 
-		glBindVertexArray(0);
-	}
-	for (int i = 0; i < children.size(); i++)
-	{
-		children[i]->draw(shaderProgram, m*toParent);
+	float backdis = glm::dot(t - glm::vec3(1, 1, -1), glm::vec3(0, 0, 1));
+	bool backtest = backdis>-rad;
+	//std::cout << point.x << " " << point.y << " " << point.z<<" "<<point.w << std::endl;
+	float frontdis = glm::dot(t - glm::vec3(0, 0, 1), glm::vec3(0, 0, -1));
+	bool fronttest = frontdis>-rad;
+
+	float updis = glm::dot(t - glm::vec3(1, 1, 1), glm::vec3(0, -1, 0));
+	bool uptest = updis>-rad;
+
+	float downdis = glm::dot(t - glm::vec3(-1, -1, -1), glm::vec3(0, 1, 0));
+	bool downtest = downdis>-rad;
+	if (righttest&&lefttest&&fronttest&&uptest&&backtest&&downtest) {
+
+		if (ball)
+		{
+
+			//std::cout << righttest<<" "<< downtest<<" "<<backtest <<" "<<lefttest<<" "<<uptest<< std::endl;
+			//std::cout << t.x << " " << t.y<<" "<<t.z << std::endl;
+	//			std::cout << frontdis << " " << rad << std::endl;
+
+			GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
+			GLuint uModelview = glGetUniformLocation(shaderProgram, "modelview");
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, &(m*toParent)[0][0]);
+
+			glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
+			glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
+			glBindVertexArray(VAO);
+
+			glDrawArrays(GL_LINES, 0, vertices.size());
+
+			glBindVertexArray(0);
+
+		}
+		for (int i = 0; i < children.size(); i++)
+		{
+			children[i]->draw(shaderProgram, m*toParent);
+		}
 	}
 }
 
 void robot::update()
 {
-	/*if (state)
+	if (state)
 	{
-		leftarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 18000.0f);
-		rightarmTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 18000.0f);
-		leftlegTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 18000.0f);
-		rightlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 18000.0f);
+		leftarmTorobot->rotate(glm::vec3(1, 0, 0), speed*M_PI / 18000.0f);
+		rightarmTorobot->rotate(glm::vec3(1, 0, 0), -speed*M_PI / 18000.0f);
+		leftlegTorobot->rotate(glm::vec3(1, 0, 0), -speed*M_PI / 18000.0f);
+		rightlegTorobot->rotate(glm::vec3(1, 0, 0), speed*M_PI / 18000.0f);
 
 	}
 	else
 	{
-		leftarmTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 18000.0f);
-		rightarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 18000.0f);
-		leftlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 18000.0f);
-		rightlegTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 18000.0f);
-	}*/
+		leftarmTorobot->rotate(glm::vec3(1, 0, 0), -speed*M_PI / 18000.0f);
+		rightarmTorobot->rotate(glm::vec3(1, 0, 0), speed*M_PI / 18000.0f);
+		leftlegTorobot->rotate(glm::vec3(1, 0, 0), speed*M_PI / 18000.0f);
+		rightlegTorobot->rotate(glm::vec3(1, 0, 0), -speed*M_PI / 18000.0f);
+	}/*
 	if (state)
 	{
 		leftarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
@@ -230,10 +261,10 @@ void robot::update()
 		rightarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
 		leftlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
 		rightlegTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 180.0f);
-	}
-	this->toParent = this->toParent*glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0.03f));
+	}*/
+	this->toParent = this->toParent*glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0.06f));
 	count++;
-	if (count == 90)
+	if (count >= max)
 	{
 		state = !state;
 		count = 0;

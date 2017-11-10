@@ -23,6 +23,8 @@ public:
 	Transform* leftlegTorobot;
 	Transform* rightlegTorobot;
 	float radius = 6;
+	float speed = 1;
+	int max = 90;
 	glm::vec3 center = glm::vec3(0.25, -0.7, 0);
 	std::vector<Node*> children;
 	bool state;

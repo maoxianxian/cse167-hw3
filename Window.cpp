@@ -45,9 +45,11 @@ bool building = true;
 std::vector<robot*> rob;
 std::vector<Transform*> children;
 robot* robo;
+double lastTime;
+int nbFrames = 0;
 void Window::initialize_objects()
 {
-	
+	lastTime= glfwGetTime();
 	loadTexture();
 	//  the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -59,7 +61,7 @@ void Window::initialize_objects()
 	limb = new Geometry("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\limb.obj");
 
 
-	/*
+	
 	antennaleftTorobot = new Transform(glm::mat4(1.0f));
 	antennaleftTorobot->addChild(antenna);
 	children.push_back(antennaleftTorobot);
@@ -100,18 +102,18 @@ void Window::initialize_objects()
 	children.push_back(rightlegTorobot);
 	root = new Transform(glm::mat4(1.0f));
 	root->addChild(antennaleftTorobot);
-	temp = antennaleftTorobot;*/
+	temp = antennaleftTorobot;/*
 	root = new Transform(glm::mat4(1.0f));
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 50; i++)
 	{
-		for (int j = 0; j < 10; j++)
+		for (int j = 0; j < 50; j++)
 		{
 			robot* robo = new robot(glm::mat4(1.0f)*glm::translate(glm::mat4(1.0f),glm::vec3(-i*5,-1,-j*5)), antenna, body, eyeball, head, limb);
 			rob.push_back(robo);
 			root->addChild(robo);
 			building = false;
 		}
-	}
+	}*/
 	cbe= new Cube();
 }
 
@@ -267,7 +269,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 	if (height > 0)
 	{
-		P = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 1000.0f);
+		P = glm::perspective(45.0f, (float)width / (float)height, 1.0f, 1000.0f);
 		V = glm::lookAt(cam_pos, cam_look_at, cam_up);
 	}
 }
@@ -291,14 +293,17 @@ void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods
 
 void Window::display_callback(GLFWwindow* window)
 {
+	
+	double currentTime = glfwGetTime();
+	nbFrames++;
+	if (currentTime - lastTime >= 1.0)
+	{
+		std::cout << nbFrames / (currentTime - lastTime) << std::endl;
+		nbFrames = 0;
+		lastTime = currentTime;
+	}
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glm::vec3 d = glm::normalize(-cam_pos);
-	glm::vec3 near = cam_pos + d*0.1f;
-	glm::vec3 far = cam_pos + d*1000.0f;
-	glm::vec3 rightfar = normalize(glm::cross(d, cam_up));
-	glm::vec3 ftl = cam_pos + far + tan(22.5f / 180.0f)*1000*cam_up - tan(22.5f/180.0f)*1000*rightfar;
-	glm::vec3 ftr = 
 
 	// Use the shader of programID
 	glUseProgram(shaderProgram);
@@ -537,6 +542,46 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 				}
 			}
 		}
+		else if (key == GLFW_KEY_V)
+		{
+			if (!building)
+			{
+				if (mods)
+				{
+					for (int i = 0; i < rob.size(); i++)
+					{
+						rob[i]->speed *= 1.1;
+					}
+				}
+				else
+				{
+					for (int i = 0; i < rob.size(); i++)
+					{
+						rob[i]->speed /= 1.1;
+					}
+				}
+			}
+		}
+		else if (key == GLFW_KEY_N)
+		{
+			if (!building)
+			{
+				if (mods)
+				{
+					for (int i = 0; i < rob.size(); i++)
+					{
+						rob[i]->max+=2;
+					}
+				}
+				else
+				{
+					for (int i = 0; i < rob.size(); i++)
+					{
+						rob[i]->max-=2;
+					}
+				}
+			}
+		}
 	}
 	if (action == GLFW_REPEAT)
 	{
@@ -635,6 +680,47 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			else
 			{
 				temp->scale(1, 1, 0.9);
+			}
+		}
+	}
+	else if (key == GLFW_KEY_V)
+	{
+		if (!building)
+		{
+			if (mods)
+			{
+				for (int i = 0; i < rob.size(); i++)
+				{
+					rob[i]->speed *= 1.1;
+				}
+			}
+			else
+			{
+				for (int i = 0; i < rob.size(); i++)
+				{
+					rob[i]->speed /= 1.1;
+				}
+			}
+		}
+	}
+	else if (key == GLFW_KEY_N)
+	{
+		if (!building)
+		{
+			if (mods)
+			{
+				for (int i = 0; i < rob.size(); i++)
+				{
+					rob[i]->max += 2;
+				}
+			}
+			else
+			{
+				for (int i = 0; i < rob.size(); i++)
+				{
+					rob[i]->max -= 2;
+				}
+				std::cout << rob[0]->max << std::endl;;
 			}
 		}
 	}
