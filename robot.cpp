@@ -1,6 +1,7 @@
 #include "robot.h"
 #include <iostream>
 #include "Window.h"
+#include <algorithm>
 robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geometry* head,Geometry* limb)
 {
 	parse("C:\\Users\\c7ye\\Desktop\\CSE167StarterCode2-master\\sphere.obj");
@@ -34,7 +35,7 @@ robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geom
 	this->eyeball = eyeball;
 	this->head = head;
 	this->limb = limb;
-	/*antennaleftTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.08, 0.3)));
+	antennaleftTorobot = new Transform(glm::mat4(1.0f)*glm::scale(glm::mat4(1.0f), glm::vec3(0.3, 0.08, 0.3)));
 	antennaleftTorobot->rotate(glm::vec3(1, 0, 0), -(float)M_PI / 1.6);
 	antennaleftTorobot->rotate(glm::vec3(0, 0, 1), (float)M_PI / 2);
 	antennaleftTorobot->addChild(antenna);
@@ -95,7 +96,7 @@ robot::robot(glm::mat4 m,Geometry* antenna,Geometry* body,Geometry* eyeball,Geom
 	rightlegTorobot->scale(0.1, 0.07, 0.1);
 	rightlegTorobot->translate(3.5, -6, 0.5);
 	rightlegTorobot->addChild(limb);
-	children.push_back(rightlegTorobot);*/
+	children.push_back(rightlegTorobot);
 }
 
 robot::~robot()
@@ -173,7 +174,6 @@ void robot::parse(const char* filepath)
 		char buffer[128];
 		fgets(buffer, 128, fp);
 	}
-	//center(); 
 	fclose(fp);   // make sure you don't forget to close the file when done
 }
 void robot::draw(GLuint shaderProgram, glm::mat4 m)
@@ -181,34 +181,70 @@ void robot::draw(GLuint shaderProgram, glm::mat4 m)
 	glm::mat4 modelview = Window::V * m*toParent*glm::scale(glm::mat4(1.0f), glm::vec3(radius, radius, radius))*glm::translate(glm::mat4(1.0f), center);
 	glm::vec4 point = Window::P*modelview*glm::vec4(0, 0, 0, 1);
 	glm::vec3 t = point / point.w;
-	glm::vec4 radvect1 = Window::P*modelview*glm::vec4(1, 0, 0, 1);
-	float rad = glm::length(glm::vec3(radvect1 / radvect1.w) - glm::vec3(point / point.w));
 
+	glm::vec4 radvect1 = Window::P*modelview*glm::vec4(1, 0, 0, 1);
+	float rad1 = glm::length(glm::vec3(radvect1 / radvect1.w) - glm::vec3(point / point.w));
+	radvect1 = Window::P*modelview*glm::vec4(0, 0, -1, 1);
+	float rad2 = glm::length(glm::vec3(radvect1 / radvect1.w) - glm::vec3(point / point.w));
+	radvect1 = Window::P*modelview*glm::vec4(0, 0, 1, 1);
+	float rad3 = glm::length(glm::vec3(radvect1 / radvect1.w) - glm::vec3(point / point.w));
+	radvect1 = Window::P*modelview*glm::vec4(-1, 0, 0, 1);
+	float rad4 = glm::length(glm::vec3(radvect1 / radvect1.w) - glm::vec3(point / point.w));
+	radvect1 = Window::P*modelview*glm::vec4(0, 1, 0, 1);
+	float rad5 = glm::length(glm::vec3(radvect1 / radvect1.w) - glm::vec3(point / point.w));
+	radvect1 = Window::P*modelview*glm::vec4(0, -1, 0, 1);
+	float rad6 = glm::length(glm::vec3(radvect1 / radvect1.w) - glm::vec3(point / point.w));
+	float rad = std::min(rad1,rad2);
+	rad = std::min(rad, rad3);
+	rad = std::min(rad, rad4);
+	rad = std::min(rad, rad5);
+	rad = std::min(rad, rad6);
 	float rightdis = glm::dot(t - glm::vec3(1, 1, 1), glm::vec3(-1, 0, 0));
 	bool righttest = rightdis > -rad;
 
 	float leftdis = glm::dot(t - glm::vec3(-1, -1, -1), glm::vec3(1, 0, 0));
 	bool lefttest = leftdis>-rad;
 
-	float backdis = glm::dot(t - glm::vec3(1, 1, -1), glm::vec3(0, 0, 1));
-	bool backtest = backdis>-rad;
-	//std::cout << point.x << " " << point.y << " " << point.z<<" "<<point.w << std::endl;
-	float frontdis = glm::dot(t - glm::vec3(0, 0, 1), glm::vec3(0, 0, -1));
-	bool fronttest = frontdis>-rad;
+	
 
 	float updis = glm::dot(t - glm::vec3(1, 1, 1), glm::vec3(0, -1, 0));
 	bool uptest = updis>-rad;
 
 	float downdis = glm::dot(t - glm::vec3(-1, -1, -1), glm::vec3(0, 1, 0));
 	bool downtest = downdis>-rad;
-	if (righttest&&lefttest&&fronttest&&uptest&&backtest&&downtest) {
 
+	//radvect1 = Window::P*modelview*glm::vec4(0, 0, -1, 1);
+	//rad = glm::length(glm::vec3(radvect1 / radvect1.w) - glm::vec3(point / point.w));
+	float backdis = glm::dot(t - glm::vec3(1, 1, -1), glm::vec3(0, 0, 1));
+	bool backtest = backdis>-rad;
+	//std::cout << rad;
+	//radvect1 = Window::P*modelview*glm::vec4(0, 0, 1, 1);
+	//rad = glm::length(glm::vec3(radvect1 / radvect1.w) - glm::vec3(point / point.w));
+	float frontdis = glm::dot(t - glm::vec3(0, 0, 1), glm::vec3(0, 0, -1));
+	bool fronttest = frontdis>-rad;
+	//first version
+
+	/*glm::mat4 inverseCameraRotation = Window::V;
+	inverseCameraRotation[3] = glm::vec4(0, 0, 0, 1);
+	glm::mat4 cameraRotation = transpose(inverseCameraRotation);
+	glm::vec4 axis = cameraRotation * glm::vec4(0,0,-1, 0);
+	glm::vec4 theOtherSideInWorld = t + axis * radius;
+	glm::vec4 theOtherSide = Window::P*modelview*theOtherSideInWorld;
+	theOtherSide = theOtherSide / theOtherSide.w;
+	float radius_in_NDC = glm::length(theOtherSide - t);
+	float frontdis = glm::dot(glm::vec3(t) - glm::vec3(0, 0, 1), glm::vec3(0, 0, -1));
+	bool fronttest = frontdis>-radius_in_NDC;*/
+	//std::cout << " " << rad << std::endl;
+	//std::cout << backtest << " " << fronttest <<" "<<righttest<<" "<<lefttest<<" "<<downtest<< std::endl;
+	if (righttest&&lefttest&&fronttest&&uptest&&backtest&&downtest) {
+	//if(fronttest){
+		//std::cout << (m*toParent*glm::scale(glm::mat4(1.0f), glm::vec3(radius, radius, radius))*glm::translate(glm::mat4(1.0f), center)*glm::vec4(0,0,0,1)).z << std::endl;
 		if (ball)
 		{
 
 			//std::cout << righttest<<" "<< downtest<<" "<<backtest <<" "<<lefttest<<" "<<uptest<< std::endl;
 			//std::cout << t.x << " " << t.y<<" "<<t.z << std::endl;
-	//			std::cout << frontdis << " " << rad << std::endl;
+			//	std::cout << frontdis << " " << radius_in_NDC << std::endl;
 
 			GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
 			GLuint uModelview = glGetUniformLocation(shaderProgram, "modelview");
@@ -232,7 +268,7 @@ void robot::draw(GLuint shaderProgram, glm::mat4 m)
 
 void robot::update()
 {
-	if (state)
+	/*if (state)
 	{
 		leftarmTorobot->rotate(glm::vec3(1, 0, 0), speed*M_PI / 18000.0f);
 		rightarmTorobot->rotate(glm::vec3(1, 0, 0), -speed*M_PI / 18000.0f);
@@ -246,7 +282,7 @@ void robot::update()
 		rightarmTorobot->rotate(glm::vec3(1, 0, 0), speed*M_PI / 18000.0f);
 		leftlegTorobot->rotate(glm::vec3(1, 0, 0), speed*M_PI / 18000.0f);
 		rightlegTorobot->rotate(glm::vec3(1, 0, 0), -speed*M_PI / 18000.0f);
-	}/*
+	}*/
 	if (state)
 	{
 		leftarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
@@ -261,7 +297,7 @@ void robot::update()
 		rightarmTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
 		leftlegTorobot->rotate(glm::vec3(1, 0, 0), M_PI / 180.0f);
 		rightlegTorobot->rotate(glm::vec3(1, 0, 0), -M_PI / 180.0f);
-	}*/
+	}
 	this->toParent = this->toParent*glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0.06f));
 	count++;
 	if (count >= max)

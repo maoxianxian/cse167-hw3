@@ -62,7 +62,7 @@ void Window::initialize_objects()
 
 
 	
-	antennaleftTorobot = new Transform(glm::mat4(1.0f));
+	/*antennaleftTorobot = new Transform(glm::mat4(1.0f));
 	antennaleftTorobot->addChild(antenna);
 	children.push_back(antennaleftTorobot);
 
@@ -102,7 +102,7 @@ void Window::initialize_objects()
 	children.push_back(rightlegTorobot);
 	root = new Transform(glm::mat4(1.0f));
 	root->addChild(antennaleftTorobot);
-	temp = antennaleftTorobot;/*
+	temp = antennaleftTorobot;*/
 	root = new Transform(glm::mat4(1.0f));
 	for (int i = 0; i < 50; i++)
 	{
@@ -113,7 +113,7 @@ void Window::initialize_objects()
 			root->addChild(robo);
 			building = false;
 		}
-	}*/
+	}
 	cbe= new Cube();
 }
 
@@ -295,13 +295,8 @@ void Window::display_callback(GLFWwindow* window)
 {
 	
 	double currentTime = glfwGetTime();
-	nbFrames++;
-	if (currentTime - lastTime >= 1.0)
-	{
-		std::cout << nbFrames / (currentTime - lastTime) << std::endl;
-		nbFrames = 0;
+		std::cout << (currentTime - lastTime) << std::endl;
 		lastTime = currentTime;
-	}
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
