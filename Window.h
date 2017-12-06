@@ -12,23 +12,10 @@
 #include <GLFW/glfw3.h>
 #include "Cube.h"
 #include "shader.h"
-/*struct directionalLight {
-	glm::vec3 Color;
-	glm::vec3 Direction;
-};
-struct pointLight {
-	glm::vec3 Color;
-	glm::vec3 Position;
-	float attenuation;
-};
-struct spotLight {
-	glm::vec3 Color;
-	glm::vec3 Position;
-	float attenuation;
-	float exponent;
-	float coneAngle;
-	glm::vec3 coneDirection;
-};*/
+#include "Water.h"
+#include "BezierPatches.h"
+
+
 class Window
 {
 public:
@@ -41,12 +28,13 @@ public:
 	static GLFWwindow* create_window(int width, int height);
 	static void resize_callback(GLFWwindow* window, int width, int height);
 	static void idle_callback();
-	static unsigned char* loadPPM(const char* filename, int& width, int& height);
-	static GLuint Window::loadTexture();
-	static glm::vec3 trackmap(double x, double y);
-	static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
 	static void display_callback(GLFWwindow*);
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	static glm::vec3 trackmap(double x, double y);
+	static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
+	static glm::vec3 cam_pos;		// e  | Position of camera
+	static glm::vec3 cam_look_at;	// d  | This is where the camera looks at
+	static glm::vec3 cam_up;
 };
 
 #endif
